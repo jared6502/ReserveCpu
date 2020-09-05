@@ -188,16 +188,21 @@ namespace ReserveCpu
 							if (IsOnTheList(p.ProcessName, reservelist[i]))
 							{
 								//process matched to list, make it use only this CPU core
-								ProcessConfig cfg = GetConfig(p.ProcessName, reservelist[i]);
-								p.ProcessorAffinity = (IntPtr)(1 << ((Environment.ProcessorCount - i) - 1));
-								p.PriorityClass = cfg.Priority;
+								try
+								{
+									ProcessConfig cfg = GetConfig(p.ProcessName, reservelist[i]);
+									p.ProcessorAffinity = (IntPtr)(1 << ((Environment.ProcessorCount - i) - 1));
+									p.PriorityClass = cfg.Priority;
+								}
+								catch (Exception ex)
+								{
+									Console.WriteLine("Failed to set affinity and priority for process \"" + p.ProcessName+ "\": " + ex.Message);
+								}
 							}
 							else
 							{
 								if (!IsOnIgnoreList(p.ProcessName))
 								{
-									int currentaffinity;
-
 									//process not on list, only allow it to use the other CPU cores
 									try
 									{
